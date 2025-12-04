@@ -115,6 +115,16 @@
 .portal-warn { display: none; padding: 10px 12px; background: #1a1f3e; color: #ffe8a3; border-top: 1px solid #3b3560; }
 .portal-warn.show { display: block; }
 .portal-hint { font-size: 0.85rem; color: #b6c3ff; }
+/* Startup Overlay (non-blocking when hidden) */
+.startup-overlay { position: fixed; inset: 0; background: rgba(0,0,0,0.45); display: none; align-items: center; justify-content: center; z-index: 9999; pointer-events: none; }
+.startup-overlay.startup-overlay--visible { display: flex; pointer-events: auto; }
+.startup-popup { background: #ffffff; max-width: 800px; width: 90%; max-height: 90vh; border-radius: 8px; box-shadow: 0 10px 30px rgba(0,0,0,0.3); padding: 1rem 1.25rem; display: flex; flex-direction: column; }
+.startup-header { display: flex; justify-content: space-between; align-items: center; gap: .5rem; }
+.startup-header-buttons { display: flex; gap: .25rem; }
+.startup-header-buttons button { border: none; background: #e5e5e5; padding: .25rem .5rem; cursor: pointer; border-radius: 4px; }
+.startup-body { margin-top: .75rem; overflow-y: auto; }
+body.startup-locked { overflow: hidden; }
+.startup-reopen-btn { position: fixed; right: 1rem; bottom: 1rem; z-index: 9990; padding: .4rem .8rem; border-radius: 999px; border: none; background: #222; color: #fff; font-size: .85rem; cursor: pointer; }
 </style></head>
 <body>
 <nav class="tab-nav"><button class="tab-btn" data-tab="whd">🏠 Werelddaklozendag</button><button class="tab-btn" data-tab="whd">🧾 WHD Factsheet</button>
@@ -130,6 +140,69 @@
 <button class="tab-btn" data-tab="dashboard">🧭 Dashboard</button>
 <button class="tab-btn" data-tab="guide">📘 Reproduction Guide</button>
 </nav>
+<!-- STARTUP-OVERLAY -->
+<div id="startup-overlay" class="startup-overlay startup-overlay--visible" aria-hidden="false">
+  <div id="startup-popup" class="startup-popup" role="dialog" aria-modal="true">
+    <header class="startup-header">
+      <h2 style="margin:0; font-size:18px; color:#0b3b6f;">WHD Applikation – Start</h2>
+      <div class="startup-header-buttons">
+        <button type="button" id="startup-minimize-btn" title="Minimieren">_</button>
+        <button type="button" id="startup-close-btn" title="Schließen">×</button>
+      </div>
+    </header>
+    <div class="startup-body">
+      <p style="margin:0;">Kurze Erklärung: Dieses Fenster kann mit „_“ minimiert werden (Seite bleibt klickbar) oder mit „×“ komplett geschlossen werden.</p>
+    </div>
+  </div>
+  <script>
+    (function () {
+      const overlay   = document.getElementById('startup-overlay');
+      const popup     = document.getElementById('startup-popup');
+      const minimize  = document.getElementById('startup-minimize-btn');
+      const closeBtn  = document.getElementById('startup-close-btn');
+      let reopenBtn   = document.getElementById('startup-reopen-btn');
+      if (!reopenBtn) {
+        reopenBtn = document.createElement('button');
+        reopenBtn.id = 'startup-reopen-btn';
+        reopenBtn.className = 'startup-reopen-btn';
+        reopenBtn.hidden = true;
+        reopenBtn.textContent = 'WHD Startinfo anzeigen';
+        document.body.appendChild(reopenBtn);
+      }
+      function lockBody(){ document.body.classList.add('startup-locked'); }
+      function unlockBody(){ document.body.classList.remove('startup-locked'); }
+      function showStartupPopup(){
+        if (!overlay) return;
+        overlay.classList.add('startup-overlay--visible');
+        overlay.setAttribute('aria-hidden','false');
+        if (reopenBtn) reopenBtn.hidden = true;
+        lockBody();
+      }
+      function minimizeStartupPopup(){
+        if (!overlay) return;
+        overlay.classList.remove('startup-overlay--visible');
+        overlay.setAttribute('aria-hidden','true');
+        overlay.style.pointerEvents = 'none';
+        unlockBody();
+        if (reopenBtn) reopenBtn.hidden = false;
+      }
+      function closeStartupPopup(){
+        if (!overlay) return;
+        overlay.classList.remove('startup-overlay--visible');
+        overlay.setAttribute('aria-hidden','true');
+        overlay.style.pointerEvents = 'none';
+        unlockBody();
+        if (reopenBtn) reopenBtn.hidden = true;
+      }
+      if (minimize) minimize.addEventListener('click', minimizeStartupPopup);
+      if (closeBtn) closeBtn.addEventListener('click', closeStartupPopup);
+      if (reopenBtn) reopenBtn.addEventListener('click', showStartupPopup);
+      overlay.addEventListener('click', (evt)=>{ if (evt.target === overlay) minimizeStartupPopup(); });
+      // beim Laden anzeigen
+      showStartupPopup();
+    })();
+  </script>
+</div>
 <div class="tab-content active" id="tab-frontpage">
 <div class="container">
 <div class="logo">
@@ -443,7 +516,7 @@ en voor elke t ∈ T bestaat minstens één i ∈ I.
 <button class="portal-btn" id="portal-closeBtn">Schließen</button>
 </div>
 </div>
-<iframe id="portal-frame" class="portal-frame" referrerpolicy="no-referrer" allowfullscreen="true" allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture" src="./WHD Applikation — Komplettes Single-File System TTT_files/saved_resource.html"></iframe>
+<iframe id="portal-frame" class="portal-frame" referrerpolicy="no-referrer" allowfullscreen="true" allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture" src="about:blank"></iframe>
 <div id="portal-warn" class="portal-warn">Diese Website erlaubt keine Einbettung in andere Seiten. Bitte öffne sie im Original‑Tab.</div>
 </div>
 </div>
@@ -1720,10 +1793,40 @@ return { session_id, analysis, verification, visibility, report }
       closeBtn.innerHTML = '✕';
       closeBtn.style.cssText = 'width:32px; height:32px; border:none; background:#ef4444; color:white; border-radius:6px; cursor:pointer; font-size:18px; font-weight:bold; flex-shrink:0;';
       closeBtn.onclick = () => { container.style.display = 'none'; };
+      
+      const minimizeBtn = document.createElement('button');
+      minimizeBtn.innerHTML = '–';
+      minimizeBtn.style.cssText = 'width:32px; height:32px; border:none; background:#f59e0b; color:#0f172a; border-radius:6px; cursor:pointer; font-size:18px; font-weight:bold; flex-shrink:0;';
+      minimizeBtn.title = 'Minimieren';
+      minimizeBtn.onclick = () => {
+        try {
+          frameWindow.style.display = 'none';
+          // Overlay nicht blockierend machen
+          container.style.background = 'transparent';
+          container.style.pointerEvents = 'none';
+          // Restore-Schaltfläche unten rechts
+          let restore = document.getElementById('hoverapp-restore');
+          if (restore) restore.remove();
+          restore = document.createElement('button');
+          restore.id = 'hoverapp-restore';
+          restore.textContent = '⤢';
+          restore.title = 'Wiederherstellen';
+          restore.style.cssText = 'position:fixed; bottom:16px; right:16px; z-index:10001; padding:10px 12px; background:#5da0ff; color:#06122b; border:none; border-radius:999px; cursor:pointer; font-weight:700; box-shadow:0 4px 16px rgba(0,0,0,0.3);';
+          restore.onclick = () => {
+            container.style.display = 'flex';
+            container.style.pointerEvents = 'auto';
+            container.style.background = 'rgba(0,0,0,0.7)';
+            frameWindow.style.display = 'flex';
+            restore.remove();
+          };
+          document.body.appendChild(restore);
+        } catch(e) {}
+      };
 
       browserBar.appendChild(navButtons);
       browserBar.appendChild(addressBar);
       browserBar.appendChild(titleBar);
+      browserBar.appendChild(minimizeBtn);
       browserBar.appendChild(closeBtn);
 
       const iframe = document.createElement('iframe');
@@ -1774,6 +1877,38 @@ return { session_id, analysis, verification, visibility, report }
       reloadBtn.style.cssText = 'width:32px; height:32px; border:none; background:#fff; border-radius:6px; cursor:pointer; font-size:16px; display:flex; align-items:center; justify-content:center;';
       reloadBtn.onclick = () => { const iframe = document.getElementById('hoverapp-iframe'); iframe.src = iframe.src; };
       
+      const minimizeBtn2 = document.createElement('button');
+      minimizeBtn2.innerHTML = '–';
+      minimizeBtn2.style.cssText = 'width:32px; height:32px; border:none; background:#f59e0b; color:#0f172a; border-radius:6px; cursor:pointer; font-size:18px; font-weight:bold; flex-shrink:0;';
+      minimizeBtn2.title = 'Minimieren';
+      minimizeBtn2.onclick = () => {
+        try {
+          frameWindow.style.display = 'none';
+          const container = document.getElementById('hoverapp-frame-container');
+          if (container) {
+            container.style.background = 'transparent';
+            container.style.pointerEvents = 'none';
+          }
+          let restore = document.getElementById('hoverapp-restore');
+          if (restore) restore.remove();
+          restore = document.createElement('button');
+          restore.id = 'hoverapp-restore';
+          restore.textContent = '⤢';
+          restore.title = 'Wiederherstellen';
+          restore.style.cssText = 'position:fixed; bottom:16px; right:16px; z-index:10001; padding:10px 12px; background:#5da0ff; color:#06122b; border:none; border-radius:999px; cursor:pointer; font-weight:700; box-shadow:0 4px 16px rgba(0,0,0,0.3);';
+          restore.onclick = () => {
+            if (container) {
+              container.style.display = 'flex';
+              container.style.pointerEvents = 'auto';
+              container.style.background = 'rgba(0,0,0,0.7)';
+            }
+            frameWindow.style.display = 'flex';
+            restore.remove();
+          };
+          document.body.appendChild(restore);
+        } catch(e) {}
+      };
+      
       const addressBar = document.createElement('div');
       addressBar.id = 'hoverapp-address';
       addressBar.style.cssText = 'flex:1; background:#fff; border:1px solid #cbd5e1; border-radius:8px; padding:8px 12px; margin:0 12px; font-size:13px; color:#475569; overflow:hidden; text-overflow:ellipsis; white-space:nowrap;';
@@ -1792,6 +1927,7 @@ return { session_id, analysis, verification, visibility, report }
       browserBar.appendChild(reloadBtn);
       browserBar.appendChild(addressBar);
       browserBar.appendChild(titleBar);
+      browserBar.appendChild(minimizeBtn2);
       browserBar.appendChild(closeBtn);
       
       const iframe = document.createElement('iframe');
@@ -2760,17 +2896,27 @@ return { session_id, analysis, verification, visibility, report }
     display: none;
   }
 
+  /* Minimierter Zustand – Overlay blockiert NICHT mehr */
   .training-popup.minimized {
+    position: fixed;
+    top: auto;
+    left: auto;
+    right: 20px;
+    bottom: 20px;
+    width: auto;
+    height: auto;
+    background: transparent;
+    backdrop-filter: none;
     align-items: flex-end;
     justify-content: flex-end;
+    pointer-events: none; /* Overlay fängt keine Klicks ab */
   }
-
   .training-popup.minimized .training-popup-frame {
-    width: 300px;
+    width: 260px;
     height: auto;
     max-height: 150px;
+    pointer-events: auto; /* Nur das kleine Fenster ist klickbar */
   }
-
   .training-popup.minimized .training-popup-content {
     display: none;
   }
@@ -2946,7 +3092,7 @@ return { session_id, analysis, verification, visibility, report }
       <div class="training-popup-controls">
         <button class="training-btn training-btn-minimize" onclick="minimizeTrainingPopup()" title="Minimaliseren">−</button>
         <button class="training-btn training-btn-maximize" onclick="maximizeTrainingPopup()" title="Maximaliseren">□</button>
-        <button class="training-btn training-btn-close" onclick="minimizeTrainingPopup()" title="Minimaliseren">×</button>
+        <button class="training-btn training-btn-close" onclick="closeTrainingPopup()" title="Sluiten">×</button>
       </div>
     </div>
     <div class="training-popup-content">
@@ -3061,26 +3207,29 @@ return { session_id, analysis, verification, visibility, report }
         return { verified: true, message: 'Spende verifiziert' };
       }
 
-      // In Production: API call to backend
-      try {
-        const response = await fetch('/api/donation/verify', {
-          method: 'POST',
-          headers: { 'Content-Type': 'application/json' },
-          body: JSON.stringify({ 
-            referrer: document.referrer,
-            timestamp: new Date().toISOString()
-          })
-        });
-
-        if (response.ok) {
-          const data = await response.json();
-          if (data.verified) {
-            this.cacheStatus(true);
-            return data;
+      // Static hosting: skip backend call to avoid 405 on GitHub Pages/Pages.dev/file:
+      const host = (location && location.hostname) ? location.hostname : '';
+      const isStatic = location.protocol === 'file:' || /\.github\.io$/.test(host) || /pages\.dev$/.test(host);
+      if (!isStatic) {
+        try {
+          const response = await fetch('/api/donation/verify', {
+            method: 'POST',
+            headers: { 'Content-Type': 'application/json' },
+            body: JSON.stringify({ 
+              referrer: document.referrer,
+              timestamp: new Date().toISOString()
+            })
+          });
+          if (response.ok) {
+            const data = await response.json();
+            if (data.verified) {
+              this.cacheStatus(true);
+              return data;
+            }
           }
+        } catch (error) {
+          // silently ignore on non-available backend
         }
-      } catch (error) {
-        console.log('Verification API not available, using cache');
       }
 
       return { verified: false, donationUrl: this.gofundmeUrl };
