@@ -941,6 +941,11 @@ return { session_id, analysis, verification, visibility, report }
       <button onclick="exportAppConfig()">⬇️ Export config</button>
       <label>Import: <input id="app-config-file" type="file" accept=".json"></label>
       <button onclick="importAppConfig()">📥 Importeren</button>
+      <label style="margin-left:18px;">Contacts CSV:
+        <input id="contacts-csv" type="file" accept=".csv">
+      </label>
+      <button onclick="factoryImportContacts()">📥 Import contacts</button>
+      <span id="contacts-import-status" style="font-size:12px; color:#6b7280;"></span>
     </div>
   </div>
   <div id="diagnostics" class="box" style="margin-top:12px;">
@@ -1058,6 +1063,44 @@ return { session_id, analysis, verification, visibility, report }
           </div>`;
         return createElementFromHTML(html);
       });
+    })();
+    
+    // Console & error capture (diagnostics)
+    (function(){
+      try {
+        const MAX = 500;
+        const errors = [];
+        window.__consoleErrors = errors;
+        const orig = {
+          log: console.log,
+          info: console.info,
+          warn: console.warn,
+          error: console.error
+        };
+        function pushEntry(type, args, stack){
+          try {
+            const msg = args.map(a=>{
+              try { return (typeof a === 'string') ? a : JSON.stringify(a); }
+              catch(_){ return String(a); }
+            }).join(' ');
+            errors.push({ type, time: new Date().toISOString(), msg, stack: stack||'' });
+            if (errors.length > MAX) errors.splice(0, errors.length - MAX);
+          } catch(_){}
+          try { (typeof updateDiagnostics === 'function') && updateDiagnostics(); } catch(_){}
+        }
+        console.error = function(){ pushEntry('error', Array.from(arguments), (new Error()).stack); return orig.error.apply(console, arguments); };
+        console.warn  = function(){ pushEntry('warn',  Array.from(arguments)); return orig.warn.apply(console, arguments); };
+        // window error hooks
+        window.addEventListener('error', function(e){
+          const m = (e && (e.message||e.error)) || 'window.error';
+          pushEntry('window.error', [String(m)], (e?.error && e.error.stack) || '');
+        });
+        window.addEventListener('unhandledrejection', function(e){
+          const reason = e && e.reason;
+          const m = (typeof reason === 'string') ? reason : (reason && (reason.message||JSON.stringify(reason))) || 'unhandledrejection';
+          pushEntry('promise', [String(m)], (reason && reason.stack) || '');
+        });
+      } catch(_){}
     })();
     
     // Print helpers (root-level)
@@ -1414,6 +1457,36 @@ return { session_id, analysis, verification, visibility, report }
       updateDiagnostics();
     }
     
+    async function factoryImportContacts(){
+      const s = document.getElementById('contacts-import-status');
+      const f = document.getElementById('contacts-csv')?.files?.[0];
+      if (!f){ if(s) s.textContent='geen CSV geselecteerd'; return; }
+      try{
+        const t = await f.text();
+        const [head,...rows] = t.trim().split(/\r?\n/);
+        const cols = head.split(',').map(x=>x.trim());
+        const data = rows.filter(Boolean).map(r=>{
+          const v=r.split(','); const o={}; cols.forEach((c,i)=>o[c]=(v[i]||'').trim()); return o;
+        });
+        const payload = { updated:new Date().toISOString(), count:data.length, data };
+        try { localStorage.setItem('factory:contacts', JSON.stringify(payload)); } catch(e){}
+        if (s) s.textContent = `import lokaal: ${data.length} contacten`;
+        if (!confirm('Naar GitHub repository opslaan?')) return;
+        const repo = prompt('Repo (owner/name):','');
+        const token = prompt('Fine-grained token (repo write):','');
+        if (!repo || !token) return;
+        const path='data/contacts.json';
+        const h={Authorization:`Bearer ${token}`,Accept:'application/vnd.github+json','Content-Type':'application/json'};
+        const g=await fetch(`https://api.github.com/repos/${repo}/contents/${encodeURIComponent(path)}`,{headers:h});
+        const sha = g.ok ? (await g.json()).sha : undefined;
+        const body={ message:`Factory: contacts import (${data.length})`,
+          content:btoa(unescape(encodeURIComponent(JSON.stringify(payload,null,2)))), sha };
+        const p=await fetch(`https://api.github.com/repos/${repo}/contents/${encodeURIComponent(path)}`,{method:'PUT',headers:h,body:JSON.stringify(body)});
+        if(!p.ok) throw new Error('commit failed');
+        if (s) s.textContent = `import repo: ${data.length} contacten`;
+      }catch(e){ if(s) s.textContent = `fout bij import: ${e.message||e}`; }
+    }
+    
     // Diagnostics & risk
     function scoreRisk(text){
       let score = 0;
@@ -1438,7 +1511,12 @@ return { session_id, analysis, verification, visibility, report }
       if (rb){ rb.style.width = risk + '%'; rb.style.background = (risk>60?'#ef4444':(risk>30?'#f59e0b':'#10b981')); }
       const setTxt = (id, txt) => { const el = document.getElementById(id); if (el) el.textContent = txt; };
       setTxt('diag-pack', `Pack: ${pack}`);
-      setTxt('diag-issues', `Issues: ${issues.length ? issues.join(', ') : 'geen'}`);
+      try {
+        const ce = (window.__consoleErrors||[]).length;
+        setTxt('diag-issues', `Issues: ${issues.length ? issues.join(', ') : 'geen'}${ce ? ` (console:${ce})` : ''}`);
+      } catch(_){
+        setTxt('diag-issues', `Issues: ${issues.length ? issues.join(', ') : 'geen'}`);
+      }
       setTxt('diag-tests', `Tests: ${tests.length}`);
     }
     
