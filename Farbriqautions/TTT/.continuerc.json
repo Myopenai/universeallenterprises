@@ -1,0 +1,153 @@
+{
+  "$schema": "https://continue.dev/config-schema.json",
+  "models": [
+    {
+      "title": "DeepSeek Coder (OpenRouter)",
+      "provider": "openrouter",
+      "model": "deepseek/deepseek-coder",
+      "apiKey": "${OPENROUTER_API_KEY}",
+      "contextLength": 16384,
+      "completionOptions": {
+        "temperature": 0.1,
+        "maxTokens": 4096
+      }
+    },
+    {
+      "title": "Llama 3.1 70B (Groq)",
+      "provider": "groq",
+      "model": "llama-3.1-70b-versatile",
+      "apiKey": "${GROQ_API_KEY}",
+      "contextLength": 131072,
+      "completionOptions": {
+        "temperature": 0.2,
+        "maxTokens": 8192
+      }
+    },
+    {
+      "title": "Qwen 2.5 Coder (OpenRouter)",
+      "provider": "openrouter",
+      "model": "qwen/qwen-2.5-coder-32b-instruct",
+      "apiKey": "${OPENROUTER_API_KEY}",
+      "contextLength": 32768,
+      "completionOptions": {
+        "temperature": 0.1,
+        "maxTokens": 4096
+      }
+    },
+    {
+      "title": "Codestral (OpenRouter)",
+      "provider": "openrouter",
+      "model": "mistralai/codestral-latest",
+      "apiKey": "${OPENROUTER_API_KEY}",
+      "contextLength": 32768,
+      "completionOptions": {
+        "temperature": 0.1,
+        "maxTokens": 4096
+      }
+    },
+    {
+      "title": "Llama 3.1 (Ollama Local)",
+      "provider": "ollama",
+      "model": "llama3.1",
+      "apiBase": "http://localhost:11434",
+      "contextLength": 8192,
+      "completionOptions": {
+        "temperature": 0.2,
+        "maxTokens": 4096
+      }
+    },
+    {
+      "title": "DeepSeek Coder (Ollama Local)",
+      "provider": "ollama",
+      "model": "deepseek-coder",
+      "apiBase": "http://localhost:11434",
+      "contextLength": 16384,
+      "completionOptions": {
+        "temperature": 0.0,
+        "maxTokens": 4096
+      }
+    },
+    {
+      "title": "Mistral (Ollama Local)",
+      "provider": "ollama",
+      "model": "mistral",
+      "apiBase": "http://localhost:11434",
+      "contextLength": 8192,
+      "completionOptions": {
+        "temperature": 0.2,
+        "maxTokens": 4096
+      }
+    }
+  ],
+  "tabAutocompleteModel": {
+    "title": "DeepSeek Coder Autocomplete",
+    "provider": "ollama",
+    "model": "deepseek-coder",
+    "apiBase": "http://localhost:11434",
+    "completionOptions": {
+      "temperature": 0.0,
+      "maxTokens": 256
+    }
+  },
+  "embeddingsProvider": {
+    "provider": "ollama",
+    "model": "nomic-embed-text",
+    "apiBase": "http://localhost:11434"
+  },
+  "customCommands": [
+    {
+      "name": "fix",
+      "description": "Auto-Fix: Clean, Build, Hash, Deploy",
+      "prompt": "Führe das Auto-Fix-System aus: 1) Clean Build-Verzeichnis, 2) Deterministischer Build, 3) Asset-Hashing für Cache-Busting, 4) Service Worker Version Bump. Zeige die Befehle und erkläre jeden Schritt."
+    },
+    {
+      "name": "deploy",
+      "description": "Deploy-Anleitung für TogetherSystems",
+      "prompt": "Erstelle eine Deploy-Anleitung für das TogetherSystems-Projekt auf GitHub Pages. Zeige: git add, commit, push Befehle mit korrektem Branch und Workflow."
+    },
+    {
+      "name": "analyze",
+      "description": "Code-Analyse für Stabilitätsprobleme",
+      "prompt": "Analysiere den Code auf potenzielle Stabilitätsprobleme: Cache-Probleme, IDE-Abhängigkeiten, nicht-deterministische Builds. Gib konkrete Lösungen."
+    }
+  ],
+  "slashCommands": [
+    {
+      "name": "strict",
+      "description": "Strikte Projekt-Regeln aktivieren"
+    },
+    {
+      "name": "build",
+      "description": "Build-Befehle anzeigen"
+    },
+    {
+      "name": "cache",
+      "description": "Cache-Busting Strategie"
+    }
+  ],
+  "contextProviders": [
+    {
+      "name": "code",
+      "params": {}
+    },
+    {
+      "name": "docs",
+      "params": {}
+    },
+    {
+      "name": "terminal",
+      "params": {}
+    },
+    {
+      "name": "problems",
+      "params": {}
+    },
+    {
+      "name": "folder",
+      "params": {}
+    }
+  ],
+  "allowAnonymousTelemetry": false,
+  "systemMessage": "Du bist ein präziser Coding-Assistent für das TogetherSystems-Projekt [.TTT T,.&T,,.T,,,.T.]. REGELN: 1) Befolge Anweisungen exakt, ändere Architektur nur auf explizite Anfrage. 2) Verwende nur Libraries aus dem Repo/Lockfile. 3) Schreibe kompilierbaren, getesteten Code. 4) Halte dich an Build-Skripte, Makefile und CI. 5) Bei Unsicherheit: frage zuerst. 6) Deterministische Antworten, keine Eigenwilligkeit."
+}
+

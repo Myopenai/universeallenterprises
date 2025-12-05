@@ -1,0 +1,7 @@
+﻿{
+  "name": "Pre-Code-Verification",
+  "rules": {
+    "noEvalExec": true,
+    "requireHeader": true
+  }
+}

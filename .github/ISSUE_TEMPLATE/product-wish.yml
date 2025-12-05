@@ -1,0 +1,52 @@
+name: "🛒 Product Wish"
+description: Submit a new product idea/request for production
+labels: ["product-wish", "triage"]
+body:
+  - type: markdown
+    attributes:
+      value: |
+        Beschrijf jouw productwens zo eenvoudig mogelijk (dummy‑vriendelijk). Voeg waar kan voorbeelden of links toe.
+  - type: input
+    id: title
+    attributes:
+      label: Korte titel
+      placeholder: "Voorbeeld: EV Fleet Optimizer met 3D Superdome animaties"
+    validations:
+      required: true
+  - type: textarea
+    id: description
+    attributes:
+      label: Beschrijving
+      description: Wat moet het product doen? Voor wie is het? Wat is de impact?
+      placeholder: "Doel, doelgroep, workflow, verwachte output…"
+    validations:
+      required: true
+  - type: dropdown
+    id: category
+    attributes:
+      label: Categorie
+      options:
+        - Digital Asset (3D/Animation)
+        - Energy / Grid
+        - Chemical / Plant
+        - Automotive / EV
+        - Hardware / PCB
+        - Overig
+    validations:
+      required: true
+  - type: textarea
+    id: style
+    attributes:
+      label: Stijl / Referenties
+      description: Bijvoorbeeld "Superdome 365°, Da Vinci, Hollywood, fosforescerende randen"
+  - type: textarea
+    id: acceptance
+    attributes:
+      label: Acceptatiecriteria
+      description: Hoe weten we dat dit product "af" en bruikbaar is?
+  - type: textarea
+    id: attachments
+    attributes:
+      label: Bijlagen/Links
+      description: Voeg mockups, voorbeelden, datasets toe (links)
+

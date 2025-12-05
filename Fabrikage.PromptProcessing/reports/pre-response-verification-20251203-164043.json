@@ -1,0 +1,60 @@
+{
+  "timestamp": "2025-12-03T16:40:43.257088Z",
+  "status": "WARNING",
+  "total_checks": 15,
+  "passed": 11,
+  "failed": 4,
+  "success_rate": 73.33333333333333,
+  "prompt_status": {
+    "status": "error",
+    "message": "Tracker nicht gefunden"
+  },
+  "function_status": {
+    "status": "warning",
+    "files_checked": 26,
+    "functions_found": 172,
+    "working": 24,
+    "broken": 2,
+    "broken_list": [
+      "prompt-pipeline.py: invalid syntax (prompt-pipeline.py, line 18)",
+      "prompt-verifier.py: invalid syntax (prompt-verifier.py, line 303)"
+    ]
+  },
+  "integrity_status": {
+    "status": "ok",
+    "total": 6,
+    "existing": 6,
+    "missing": 0,
+    "missing_list": []
+  },
+  "security_status": {
+    "status": "warning",
+    "issues": 1,
+    "issues_list": [
+      "Mögliches hardcodiertes Passwort in pre-analysis.py"
+    ]
+  },
+  "dependency_status": {
+    "status": "ok",
+    "missing": []
+  },
+  "failed_checks": [
+    "Prompt-Tracker nicht gefunden",
+    "Syntax-Fehler in prompt-pipeline.py",
+    "Syntax-Fehler in prompt-verifier.py",
+    "Mögliches hardcodiertes Passwort in pre-analysis.py"
+  ],
+  "passed_checks": [
+    "Kritische Datei vorhanden: Fabrikage.PromptProcessing/prompts/prompt-tracker.py",
+    "Kritische Datei vorhanden: Fabrikage.PromptProcessing/verification/prompt-verifier.py",
+    "Kritische Datei vorhanden: Fabrikage.PromptProcessing/orchestration/prompt-pipeline.py",
+    "Kritische Datei vorhanden: OSTOSOS-COMPLETE-OS-SYSTEM/osos-tos-production-portal.html",
+    "Kritische Datei vorhanden: OSTOSOS-COMPLETE-OS-SYSTEM/tuv.ps1",
+    "Kritische Datei vorhanden: OSTOSOS-COMPLETE-OS-SYSTEM/TUV-TEST-3X-RUNNER.ps1",
+    "Python-Modul verfügbar: json",
+    "Python-Modul verfügbar: os",
+    "Python-Modul verfügbar: sys",
+    "Python-Modul verfügbar: pathlib",
+    "Python-Modul verfügbar: datetime"
+  ]
+}

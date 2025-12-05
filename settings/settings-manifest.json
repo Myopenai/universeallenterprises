@@ -1,0 +1,11 @@
+﻿{
+  "name": "Fabrikage-Settings",
+  "requiredHeader": "//HEADER",
+  "policies": {
+    "forbidEvalExec": true,
+    "forbidChars": ["$"]
+  },
+  "architecture": {
+    "chainOrder": ["Settings", "ConsoleMonitoring", "PreCodeVerification", "Generate", "PostCodeVerification", "CharacterByCharacter", "Finalize"]
+  }
+}

@@ -1,0 +1,26 @@
+{
+  "name": "togethersystems-fix-patch",
+  "version": "1.1.0",
+  "description": "Fix patch for TOGETHERSYSTEMS - Fixes all 404 errors, broken links, and encoding issues",
+  "author": "TOGETHERSYSTEMS",
+  "license": "MIT",
+  "scripts": {
+    "fix": "node scripts/auto-fix-links.js",
+    "fix:encoding": "node scripts/fix-encoding.js",
+    "fix:all": "npm run fix && npm run fix:encoding",
+    "test": "npx playwright test",
+    "test:ui": "npx playwright test --ui",
+    "test:chromium": "npx playwright test --project=chromium",
+    "test:report": "npx playwright show-report",
+    "check-links": "npx playwright test tests/link-checker.spec.ts",
+    "check-site": "npx playwright test tests/full-site-check.spec.ts",
+    "check-all": "npx playwright test",
+    "serve": "npx http-server .. -p 9323 -c-1",
+    "install-patch": "node scripts/install-patch.js"
+  },
+  "devDependencies": {
+    "@playwright/test": "^1.40.0",
+    "http-server": "^14.1.1"
+  }
+}
+

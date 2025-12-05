@@ -1,0 +1,12 @@
+name: "💬 Feedback"
+description: Algemene feedback of vraag
+labels: ["feedback"]
+body:
+  - type: textarea
+    id: feedback
+    attributes:
+      label: Wat wil je delen?
+      placeholder: "Beschrijf je idee, vraag of opmerking…"
+    validations:
+      required: true
+

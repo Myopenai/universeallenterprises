@@ -1,0 +1,180 @@
+{
+  "project": {
+    "name": "TogetherSystems Integration",
+    "branding": "[.TTT T,.&T,,.T,,,.T.] TOGETHERSYSTEMS. INTERNATIONAL TTT",
+    "repository": "https://github.com/Myopenai/togethersystems",
+    "live_url": "https://myopenai.github.io/togethersystems/",
+    "version": "2.0.0",
+    "date": "2025-12-02"
+  },
+  "inventor": {
+    "name": "Raymond Demitrio Tel",
+    "title": "Dr. Tel (R.D.TEL)",
+    "orcid": "https://orcid.org/0009-0003-1328-2430",
+    "email": "gentlyoverdone@outlook.com",
+    "phone": "(+31) 613 803 782",
+    "location": "Nijmegen, Gelderland, Netherlands"
+  },
+  "files_to_integrate": [
+    {
+      "source": "SETUP-HANDBUCH-PORTAL.html",
+      "target": "docs_build/setup-handbuch.html",
+      "type": "standalone_html",
+      "description": "Interaktives Setup-Handbuch für kostenlose Produktion"
+    },
+    {
+      "source": "INVESTOR-DASHBOARD-TPGA.html",
+      "target": "docs_build/investor-dashboard.html",
+      "type": "standalone_html",
+      "description": "Investment Dashboard mit Kino-Qualität Animationen"
+    },
+    {
+      "source": "INVENTOR-PROJEKT-VOLLANALYSE.md",
+      "target": "docs_src/inventor-analyse.md",
+      "type": "markdown",
+      "build_to": "docs_build/inventor-analyse.html",
+      "description": "Vollständige Analyse Raymond Demitrio Tel"
+    },
+    {
+      "source": "ROUTINE-KOSTENLOSE-PRODUKTION.md",
+      "target": "docs_src/routine.md",
+      "type": "markdown",
+      "build_to": "docs_build/routine.html",
+      "description": "Setup-Routine Dokumentation"
+    },
+    {
+      "source": "AI-KOLLEGE-INTEGRATION-GUIDE.md",
+      "target": "INTEGRATION-GUIDE.md",
+      "type": "documentation",
+      "description": "Anleitung für AI-Kollegen"
+    }
+  ],
+  "navigation_updates": {
+    "files_to_modify": [
+      "index.html",
+      "manifest-portal.html",
+      "docs_templates/theme.html"
+    ],
+    "new_links": [
+      {
+        "href": "/setup-handbuch.html",
+        "text": "🛠 Setup-Handbuch",
+        "icon": "🛠"
+      },
+      {
+        "href": "/investor-dashboard.html",
+        "text": "💎 Investor Dashboard",
+        "icon": "💎"
+      },
+      {
+        "href": "/inventor-analyse.html",
+        "text": "🔍 Inventor Analyse",
+        "icon": "🔍"
+      }
+    ]
+  },
+  "tpga_data": {
+    "total_value": 1070765000,
+    "assets": {
+      "apps_87": 870000,
+      "servers_83": 415000,
+      "github_profiles_6": 300000,
+      "domains_8": 80000,
+      "code_lines_80k": 400000,
+      "music_art": 200000,
+      "viewunity": 500000,
+      "total": 2765000
+    },
+    "tpga_potential": {
+      "market_size_global": 500000000000,
+      "addressable_1_percent": 5000000000,
+      "tpga_savings_50_percent": 2500000000,
+      "inventor_share_5_percent": 125000000,
+      "npv_10_years": 768000000
+    },
+    "future_value": {
+      "tech_lead_2_3_years": 50000000,
+      "extensibility_a_e": 100000000,
+      "market_leadership": 30000000,
+      "ip_copyright": 20000000,
+      "pipeline": 100000000,
+      "total": 300000000
+    },
+    "projections": {
+      "2025": 1070000000,
+      "2026": 1500000000,
+      "2027": 2100000000,
+      "2028": 3000000000,
+      "2029": 4200000000,
+      "2030": 5500000000
+    },
+    "annual_growth_rate": 0.40
+  },
+  "github_profiles": [
+    {
+      "name": "MyOpenAi",
+      "url": "https://github.com/MyOpenAi",
+      "focus": "AI/ML, TogetherSystems"
+    },
+    {
+      "name": "viewunity",
+      "url": "https://github.com/viewunity",
+      "focus": "Unity3D, Games"
+    },
+    {
+      "name": "viewunitysystemsT",
+      "url": "https://github.com/viewunitysystemsT",
+      "focus": "System Tools"
+    },
+    {
+      "name": "ViewunityCorporation",
+      "url": "https://github.com/ViewunityCorporation",
+      "focus": "Enterprise"
+    },
+    {
+      "name": "ViewunitySystem",
+      "url": "https://github.com/ViewunitySystem",
+      "focus": "Core Systems"
+    }
+  ],
+  "websites": [
+    {
+      "name": "TogetherSystems Portal",
+      "url": "https://myopenai.github.io/togethersystems/index.html",
+      "type": "main_portal"
+    },
+    {
+      "name": "TEL1.NL",
+      "url": "https://tel1.nl",
+      "type": "brand"
+    },
+    {
+      "name": "Gently Overdone",
+      "url": "https://www.gentlyoverdone.com",
+      "type": "music_art"
+    },
+    {
+      "name": "Digitalnotar",
+      "url": "https://digitalnotar.in",
+      "type": "notary"
+    },
+    {
+      "name": "Forum",
+      "url": "https://tel1.boards.net",
+      "type": "community"
+    }
+  ],
+  "build_commands": {
+    "full_build": "make docs",
+    "clean": "make clean",
+    "verify": "make verify",
+    "docker": "docker build -t ttt-docs . && docker run --rm ttt-docs"
+  },
+  "deployment": {
+    "platform": "GitHub Pages",
+    "branch": "main",
+    "cloudflare_workers": true,
+    "service_worker": "sw.js"
+  }
+}
+

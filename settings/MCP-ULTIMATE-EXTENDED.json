@@ -1,0 +1,6 @@
+﻿{
+  "name": "MCP-Ultimate-Extended",
+  "enabled": true,
+  "modes": ["stability", "parity", "performance"],
+  "notes": "Acts as a configuration layer; actual logic enforced via verify and chain runner."
+}
