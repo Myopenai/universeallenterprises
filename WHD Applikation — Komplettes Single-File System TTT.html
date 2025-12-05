@@ -1069,37 +1069,68 @@ return { session_id, analysis, verification, visibility, report }
     (function(){
       try {
         const MAX = 500;
+        const entries = [];
         const errors = [];
+        window.__consoleAll = entries;
         window.__consoleErrors = errors;
-        const orig = {
-          log: console.log,
-          info: console.info,
-          warn: console.warn,
-          error: console.error
-        };
+        const orig = { log: console.log, info: console.info, warn: console.warn, error: console.error };
+        let lastAutoPilot = 0;
+        function shouldTriggerAutoPilot(){ const now = Date.now(); if (now - lastAutoPilot > 5000) { lastAutoPilot = now; return true; } return false; }
+        function serializeArg(a){
+          try { return (typeof a === 'string') ? a : JSON.stringify(a); }
+          catch(_){ return String(a); }
+        }
         function pushEntry(type, args, stack){
           try {
-            const msg = args.map(a=>{
-              try { return (typeof a === 'string') ? a : JSON.stringify(a); }
-              catch(_){ return String(a); }
-            }).join(' ');
-            errors.push({ type, time: new Date().toISOString(), msg, stack: stack||'' });
-            if (errors.length > MAX) errors.splice(0, errors.length - MAX);
+            const msg = args.map(serializeArg).join(' ');
+            const rec = { type, time: new Date().toISOString(), msg, stack: stack||'' };
+            entries.push(rec);
+            if (entries.length > MAX) entries.splice(0, entries.length - MAX);
+            // severe levels also tracked in errors
+            if (/^(error|warn|window\.error|promise)$/i.test(type)) {
+              errors.push(rec);
+              if (errors.length > MAX) errors.splice(0, errors.length - MAX);
+              // surface to orchestrator log if available
+              try { (window.Orchestrator && typeof Orchestrator.log === 'function') && Orchestrator.log('❌ ' + msg); } catch(_){}
+              // optional: auto-retry via AutoPilot if enabled
+              try {
+                const auto = document.getElementById('autorun-toggle');
+                if (auto && auto.checked && window.AutoPilot && shouldTriggerAutoPilot()) {
+                  window.AutoPilot.run();
+                }
+              } catch(_){}
+            }
+            try { localStorage.setItem('factory:console', JSON.stringify(entries.slice(-200))); } catch(_){}
           } catch(_){}
           try { (typeof updateDiagnostics === 'function') && updateDiagnostics(); } catch(_){}
         }
-        console.error = function(){ pushEntry('error', Array.from(arguments), (new Error()).stack); return orig.error.apply(console, arguments); };
-        console.warn  = function(){ pushEntry('warn',  Array.from(arguments)); return orig.warn.apply(console, arguments); };
+        // wrap all console levels
+        console.log  = function(){ pushEntry('log',   Array.from(arguments)); return orig.log.apply(console, arguments); };
+        console.info = function(){ pushEntry('info',  Array.from(arguments)); return orig.info.apply(console, arguments); };
+        console.warn = function(){ pushEntry('warn',  Array.from(arguments)); return orig.warn.apply(console, arguments); };
+        console.error= function(){ pushEntry('error', Array.from(arguments), (new Error()).stack); return orig.error.apply(console, arguments); };
         // window error hooks
         window.addEventListener('error', function(e){
           const m = (e && (e.message||e.error)) || 'window.error';
           pushEntry('window.error', [String(m)], (e?.error && e.error.stack) || '');
-        });
+        }, true);
         window.addEventListener('unhandledrejection', function(e){
           const reason = e && e.reason;
           const m = (typeof reason === 'string') ? reason : (reason && (reason.message||JSON.stringify(reason))) || 'unhandledrejection';
           pushEntry('promise', [String(m)], (reason && reason.stack) || '');
-        });
+        }, true);
+        // lightweight ConsoleMonitor API for fortress-guard integration
+        window.ConsoleMonitor = window.ConsoleMonitor || {
+          log: function(entry){
+            try {
+              const level = entry && entry.level || 'info';
+              const message = entry && entry.message || '';
+              pushEntry(level, [String(message)]);
+            } catch(_){}
+          },
+          get: function(){ try { return entries.slice(); } catch(_){ return []; } },
+          clear: function(){ try { entries.length = 0; errors.length = 0; localStorage.removeItem('factory:console'); updateDiagnostics(); } catch(_){} }
+        };
       } catch(_){}
     })();
     
