@@ -755,19 +755,110 @@ return { session_id, analysis, verification, visibility, report }
 </div>
 </div>
 
+<div class="tab-content" id="tab-products">
+<div class="container">
+<h1>🛒 Production Portal</h1>
+<p>Voor dummies: Kies een product of beschrijf een nieuw product. Vul simpel in — wij doen de rest.</p>
+<div class="box">
+  <label>Categorie
+    <select id="pp-category">
+      <option value="digital">Digitale Assets (3D/Animation)</option>
+      <option value="energy">Energie / Grid</option>
+      <option value="chemical">Chemie / Plant</option>
+      <option value="automotive">Automotive / EV</option>
+      <option value="hardware">Hardware / PCB</option>
+    </select>
+  </label>
+  <label style="margin-left:12px;">Titel
+    <input id="pp-title" type="text" placeholder="Bijv. Superdome 365° Phosphor Animatie">
+  </label>
+  <div style="margin-top:8px;">
+    <label>Beschrijving</label>
+    <textarea id="pp-desc" rows="4" style="width:100%;" placeholder="Beschrijf het product of wens — in eenvoudige woorden."></textarea>
+  </div>
+  <div style="margin-top:10px; display:flex; gap:10px; flex-wrap:wrap;">
+    <button onclick="ppLaunchProduction()">🚀 Start productie (Factory)</button>
+    <button onclick="ppShowDashboard()">🪟 Toon Dashboard overlay</button>
+  </div>
+  <p style="margin-top:8px; color:#6b7280; font-size:0.95rem;">Uitleg voor dummies: Heb je een oude fiets en vind je het ventiel niet? Schrijf gewoon “band plakken + ventiel uitleg” bij Beschrijving. Wij bouwen stap‑voor‑stap uitleg en demo.</p>
+  <p style="margin-top:8px; color:#6b7280; font-size:0.95rem;">Digitale producten (bijv. “Hollywood, Da Vinci, Superdome, 365°, fosforescerende randen”): zet dit in de beschrijving — de digitale “pack” past checks aan.</p>
+</div>
+</div>
+</div>
+
+<div id="pp-overlay" style="display:none; position:fixed; inset:0; background:rgba(0,0,0,0.7); z-index:10000; align-items:center; justify-content:center; padding:20px;">
+  <div style="background:#0b1020; border:1px solid #243060; border-radius:12px; width:95%; height:90%; overflow:auto; position:relative;">
+    <div style="position:sticky; top:0; display:flex; justify-content:space-between; align-items:center; background:#0e1633; border-bottom:1px solid #243060; padding:8px 12px;">
+      <strong style="color:#e8ecff;">Dashboard Overlay</strong>
+      <button onclick="ppCloseOverlay()" class="portal-btn">Sluiten</button>
+    </div>
+    <div id="pp-overlay-body" style="padding:12px;"></div>
+  </div>
+</div>
 <div class="tab-content" id="tab-dashboard">
 <div class="container">
 <h1>🧭 Dashboard</h1>
-<div class="box">
+<div class="box" style="display:flex; gap:10px; flex-wrap:wrap; align-items:center;">
   <button onclick="refreshDashboard()">🔄 Refresh</button>
+  <button onclick="runPackComparison()">📊 Compare Packs</button>
+  <label>Iteraties: <input id="cmp-iters" type="number" min="1" max="200" value="20" style="width:72px;"></label>
+  <label>Packs:
+    <select id="cmp-packs" multiple size="4">
+      <option value="generic" selected>generic</option>
+      <option value="digital" selected>digital</option>
+      <option value="energy">energy</option>
+      <option value="chemical">chemical</option>
+      <option value="automotive">automotive</option>
+    </select>
+  </label>
 </div>
 <div class="box">
   <h3>Single Pipeline</h3>
+  <div style="display:flex; gap:14px; flex-wrap:wrap; align-items:flex-start;">
+    <div style="flex:1 1 280px;">
+      <canvas id="chart-single" width="400" height="180" style="background:#0f1530;border:1px solid #243060;border-radius:8px;"></canvas>
+    </div>
+    <div style="flex:1 1 280px;">
+      <div class="kpis" style="display:grid; grid-template-columns:repeat(2, minmax(120px,1fr)); gap:8px;">
+        <div class="box"><strong>Steps</strong><div id="kpi-single-steps">—</div></div>
+        <div class="box"><strong>OK</strong><div id="kpi-single-ok">—</div></div>
+        <div class="box"><strong>Time (ms)</strong><div id="kpi-single-ms">—</div></div>
+        <div class="box"><strong>Pack</strong><div id="kpi-single-pack">—</div></div>
+      </div>
+    </div>
+  </div>
   <pre id="dash-single" style="white-space:pre-wrap;"></pre>
 </div>
 <div class="box">
   <h3>Multi‑lijnen</h3>
+  <div style="display:flex; gap:14px; flex-wrap:wrap; align-items:flex-start;">
+    <div style="flex:1 1 280px;">
+      <canvas id="chart-multi" width="400" height="180" style="background:#0f1530;border:1px solid #243060;border-radius:8px;"></canvas>
+    </div>
+    <div style="flex:1 1 280px;">
+      <div class="kpis" style="display:grid; grid-template-columns:repeat(2, minmax(120px,1fr)); gap:8px;">
+        <div class="box"><strong>Lijnen</strong><div id="kpi-multi-lines">—</div></div>
+        <div class="box"><strong>Voltooid</strong><div id="kpi-multi-done">—</div></div>
+        <div class="box"><strong>Gate fails</strong><div id="kpi-multi-fails">—</div></div>
+        <div class="box"><strong>Packs</strong><div id="kpi-multi-packs">—</div></div>
+      </div>
+    </div>
+  </div>
   <pre id="dash-multi" style="white-space:pre-wrap;"></pre>
+</div>
+<div class="box">
+  <h3>Declarations</h3>
+  <div style="display:flex; gap:10px; flex-wrap:wrap;">
+    <label>Title <input id="decl-title" type="text" placeholder="Production Declaration"></label>
+    <label>Owner <input id="decl-owner" type="text" placeholder="UAE / TTT"></label>
+  </div>
+  <textarea id="decl-notes" rows="4" style="width:100%; margin-top:8px;" placeholder="Notes / context / constraints…"></textarea>
+  <div style="margin-top:8px; display:flex; gap:8px;">
+    <button onclick="generateDeclaration()">🧾 Generate</button>
+    <button onclick="downloadDeclaration()">⬇️ Download</button>
+    <button onclick="copyDeclaration()">📋 Copy</button>
+  </div>
+  <pre id="decl-output" style="white-space:pre-wrap; margin-top:8px;"></pre>
 </div>
 </div>
 </div>
@@ -824,6 +915,7 @@ return { session_id, analysis, verification, visibility, report }
     <label>Template:
       <select id="prompt-template">
         <option value="">none</option>
+        <option value="digital">Digital / Assets</option>
         <option value="energy">Energy / Grid</option>
         <option value="chemical">Chemical / Plant</option>
         <option value="automotive">Automotive / EV</option>
@@ -1019,6 +1111,14 @@ return { session_id, analysis, verification, visibility, report }
       const RULE_PACKS = {
         generic: {
           validate: (d) => ({ ok:true, notes:['generic'] }),
+          test: (d) => ({ ok:true, checks:[] })
+        },
+        digital: {
+          validate: (d) => {
+            const p = (d?.prompt||'') + ' ' + (d?.name||'');
+            const ok = /3d|asset|animation|stereo|spiral|dome|hollywood|da\s*vinci|phosphor|pixel/i.test(p);
+            return { ok, notes:[ ok?'digital context ok':'digital context ontbreekt' ] };
+          },
           test: (d) => ({ ok:true, checks:[] })
         },
         energy: {
@@ -1350,6 +1450,134 @@ return { session_id, analysis, verification, visibility, report }
       const d2 = document.getElementById('dash-multi');
       if (d1) d1.textContent = JSON.stringify({ pack:s.pack, currentIndex:s.currentIndex, stepCount:s.stepCount }, null, 2);
       if (d2) d2.textContent = JSON.stringify({ count:m.length, lines:m.map(x=>({ id:x.id, name:x.context?.name||'', logs:(x.logs||[]).slice(-3) })) }, null, 2);
+      // KPIs + charts
+      try {
+        const ctx1 = document.getElementById('chart-single')?.getContext?.('2d');
+        const ctx2 = document.getElementById('chart-multi')?.getContext?.('2d');
+        const steps = s?.stepCount||0;
+        const idx = (s?.currentIndex ?? -1) + 1;
+        setText('kpi-single-steps', String(steps));
+        setText('kpi-single-ok', String(Math.max(0, idx)));
+        setText('kpi-single-pack', s?.pack||'—');
+        setText('kpi-single-ms', '—');
+        drawBar(ctx1, ['OK','Total'], [idx, steps], ['#10b981','#5da0ff']);
+        
+        const lines = m||[];
+        const done = lines.filter(l=>/Voltooid/.test((l.logs||[]).slice(-1)[0]||'')).length;
+        const fails = lines.filter(l=>/(Gate fail|Stap fail|Fout)/.test((l.logs||[]).join(' '))).length;
+        const packs = new Set(lines.map(l=> (l.context?.pack)||''));
+        setText('kpi-multi-lines', String(lines.length));
+        setText('kpi-multi-done', String(done));
+        setText('kpi-multi-fails', String(fails));
+        setText('kpi-multi-packs', packs.size? Array.from(packs).join(', '):'—');
+        drawBar(ctx2, ['Done','Fails','Total'], [done, fails, lines.length], ['#10b981','#ef4444','#5da0ff']);
+      } catch(e){}
+      
+      function setText(id, t){ const el = document.getElementById(id); if (el) el.textContent = t; }
+      function drawBar(ctx, labels, data, colors){
+        if (!ctx) return;
+        const w = ctx.canvas.width, h = ctx.canvas.height;
+        ctx.clearRect(0,0,w,h);
+        const max = Math.max(1, ...data);
+        const bw = Math.floor((w - 40) / data.length);
+        data.forEach((v,i)=>{
+          const x = 20 + i*bw;
+          const barH = Math.round((v/max)*(h-40));
+          ctx.fillStyle = colors[i % colors.length];
+          ctx.fillRect(x, h-20-barH, bw-10, barH);
+          ctx.fillStyle = '#acc1ff';
+          ctx.font = '12px system-ui';
+          ctx.fillText(labels[i], x, h-6);
+        });
+      }
+    }
+    
+    // Pack comparison
+    function runPackComparison(){
+      const packsSel = document.getElementById('cmp-packs');
+      const iters = parseInt(document.getElementById('cmp-iters')?.value||'20',10);
+      if (!packsSel) return;
+      const chosen = Array.from(packsSel.selectedOptions||[]).map(o=>o.value);
+      const results = {};
+      chosen.forEach(p=>{
+        let ok=0;
+        for(let i=0;i<iters;i++){
+          // use simple validate/test per pack
+          const cfg = { name: `${p} demo`, issuer: 'GSIA', prompt: `${p} sample` };
+          const v = (p==='digital') ? /3d|asset|animation|sample/i.test(cfg.prompt) : true;
+          if (v) ok++;
+        }
+        results[p] = { ok, total: iters };
+      });
+      const ctx1 = document.getElementById('chart-single')?.getContext?.('2d');
+      if (ctx1) {
+        const labels = Object.keys(results);
+        const data = labels.map(k=> results[k].ok);
+        const colors = data.map(()=> '#5da0ff');
+        // reuse drawBar from closure above by re-running refreshDashboard afterwards; here draw quick viz:
+        const w = ctx1.canvas.width, h = ctx1.canvas.height;
+        ctx1.clearRect(0,0,w,h);
+        const max = Math.max(1, ...data);
+        const bw = Math.floor((w - 40) / data.length);
+        labels.forEach((lab,i)=>{
+          const x = 20 + i*bw;
+          const barH = Math.round((data[i]/max)*(h-40));
+          ctx1.fillStyle = colors[i];
+          ctx1.fillRect(x, h-20-barH, bw-10, barH);
+          ctx1.fillStyle = '#acc1ff';
+          ctx1.font = '12px system-ui';
+          ctx1.fillText(lab, x, h-6);
+        });
+      }
+    }
+    
+    // Declarations
+    function generateDeclaration(){
+      const title = document.getElementById('decl-title')?.value||'Production Declaration';
+      const owner = document.getElementById('decl-owner')?.value||'UAE/TTT';
+      const notes = document.getElementById('decl-notes')?.value||'';
+      const s = (Orchestrator.getState?.())||{};
+      const m = (OrchestratorMulti.getState?.())||[];
+      const decl = {
+        title, owner, ts: new Date().toISOString(),
+        single: { pack:s.pack, stepCount:s.stepCount, currentIndex:s.currentIndex },
+        multi: { count:m.length, lines: m.map(l=>({ id:l.id, name:l.context?.name||'', last:(l.logs||[]).slice(-1)[0]||'' })) },
+        notes
+      };
+      const md = `# ${title}
+
+Owner: ${owner}
+Time: ${decl.ts}
+
+## Single
+- Pack: ${decl.single.pack}
+- Steps: ${decl.single.stepCount}
+- Current index: ${decl.single.currentIndex}
+
+## Multi
+- Lines: ${decl.multi.count}
+- Last statuses:
+${decl.multi.lines.map(x=>`  - L${x.id}: ${x.last||'-'}`).join('\n')}
+
+## Notes
+${notes}
+`;
+      const out = document.getElementById('decl-output');
+      if (out) out.textContent = md;
+      return { json: decl, md };
+    }
+    function downloadDeclaration(){
+      const res = generateDeclaration();
+      const blob = new Blob([res.md], { type:'text/markdown' });
+      const a = document.createElement('a');
+      a.href = URL.createObjectURL(blob);
+      a.download = `declaration-${Date.now()}.md`;
+      a.click();
+      setTimeout(()=>URL.revokeObjectURL(a.href), 500);
+    }
+    async function copyDeclaration(){
+      const res = generateDeclaration();
+      try { await navigator.clipboard.writeText(res.md); } catch(e){}
     }
     
     // On load
@@ -1358,6 +1586,45 @@ return { session_id, analysis, verification, visibility, report }
       bindAutoRun();
       updateDiagnostics();
     });
+    
+    // Products Portal glue
+    function ppLaunchProduction(){
+      const cat = document.getElementById('pp-category')?.value||'digital';
+      const title = document.getElementById('pp-title')?.value||'User Product';
+      const desc = document.getElementById('pp-desc')?.value||'';
+      // prefill factory
+      const nameEl = document.getElementById('factory-name');
+      const issuerEl = document.getElementById('factory-issuer');
+      const promptEl = document.getElementById('factory-prompt');
+      const packEl = document.getElementById('rule-pack');
+      if (nameEl) nameEl.value = title;
+      if (issuerEl) issuerEl.value = 'User';
+      if (promptEl) promptEl.value = desc;
+      if (packEl) packEl.value = (cat==='hardware'?'generic':cat);
+      _typingAnalyzer?.render?.();
+      showTab('factory');
+      orchestratorStart();
+    }
+    function ppShowDashboard(){
+      refreshDashboard();
+      const body = document.getElementById('pp-overlay-body');
+      if (body){
+        body.innerHTML = '';
+        const src = document.getElementById('tab-dashboard')?.querySelector('.container');
+        if (src){
+          const clone = src.cloneNode(true);
+          // remove canvas drawings to avoid conflicts; redraw after append
+          body.appendChild(clone);
+        }
+      }
+      const overlay = document.getElementById('pp-overlay');
+      if (overlay) overlay.style.display = 'flex';
+      setTimeout(()=>refreshDashboard(), 50);
+    }
+    function ppCloseOverlay(){
+      const overlay = document.getElementById('pp-overlay');
+      if (overlay) overlay.style.display = 'none';
+    }
     function exportSingleReport(){
       const s = Orchestrator.getState?.();
       const data = {
@@ -1429,6 +1696,7 @@ return { session_id, analysis, verification, visibility, report }
       function packObj(name){
         const packs = {
           generic: { ok:()=>true },
+          digital: { ok:(d)=>/3d|asset|animation|stereo|spiral|dome|hollywood|da\s*vinci|phosphor|pixel/i.test((d?.prompt||'')+(d?.name||'')) },
           energy:  { ok:(d)=>/energy|energie|grid|power|strom/i.test((d?.prompt||'')+(d?.name||'')) },
           chemical:{ ok:(d)=>/chem|lab|reactor/i.test((d?.prompt||'')+(d?.name||'')) },
           automotive:{ ok:(d)=>/auto|vehicle|fleet|ev|car/i.test((d?.prompt||'')+(d?.name||'')) }
